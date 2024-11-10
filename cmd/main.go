@@ -1,9 +1,11 @@
+// cmd/main.go
 package main
 
 import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/programmercintasunnah/go-todolist-ilcs/config"
@@ -12,6 +14,8 @@ import (
 	"github.com/programmercintasunnah/go-todolist-ilcs/repositories"
 	"github.com/programmercintasunnah/go-todolist-ilcs/services"
 	"github.com/sirupsen/logrus"
+	_ "github.com/lib/pq"         // PostgreSQL driver
+	_ "github.com/godror/godror"  // Oracle driver
 )
 
 func main() {
@@ -22,22 +26,31 @@ func main() {
 	logger.SetFormatter(&logrus.JSONFormatter{})
 
 	// Setup Database Connection
-	dsn := fmt.Sprintf("oracle://%s:%s@%s:%s/%s", cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBService)
-	db, err := sql.Open("oracle", dsn)
+	var dsn string
+	switch os.Getenv("DB_TYPE") {
+	case "postgres":
+		dsn = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBName)
+	case "oracle":
+		dsn = fmt.Sprintf("oracle://%s:%s@%s:%s/%s", cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBName)
+	default:
+		log.Fatal("Unsupported DB_TYPE in .env file")
+	}
+
+	db, err := sql.Open(os.Getenv("DB_TYPE"), dsn)
 	if err != nil {
-		log.Fatalf("Failed to connect to Oracle database: %v", err)
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
 	defer db.Close()
 
 	// Check connection
 	err = db.Ping()
 	if err != nil {
-		log.Fatalf("Failed to ping Oracle database: %v", err)
+		log.Fatalf("Failed to ping database: %v", err)
 	}
 
 	// Initialize Repositories, Services, Controllers
 	redisClient := repositories.InitRedis(cfg)
-	taskRepo := repositories.NewTaskRepository(db, redisClient, logger) // Update repository to accept *sql.DB
+	taskRepo := repositories.NewTaskRepository(db, redisClient, logger)
 	taskService := services.NewTaskService(taskRepo, logger)
 	taskController := controllers.NewTaskController(taskService, logger)
 
