@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/gin-gonic/gin"
 	"github.com/programmercintasunnah/go-todolist-ilcs/config"
 	"github.com/programmercintasunnah/go-todolist-ilcs/controllers"
@@ -19,6 +20,10 @@ import (
 )
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+        log.Fatal("Error loading .env file")
+    }
+	
 	cfg := config.LoadConfig()
 
 	// Setup Logging

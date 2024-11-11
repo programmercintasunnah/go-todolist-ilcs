@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/programmercintasunnah/go-todolist-ilcs/config"
 )
 
 type Claims struct {
@@ -24,7 +25,7 @@ func GenerateJWT(username string, duration time.Duration) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte("your-secret-key")) // Ganti dengan secret dari config
+	tokenString, err := token.SignedString([]byte(config.LoadConfig().JWTSecret)) // Ganti dengan secret dari config
 	if err != nil {
 		return "", err
 	}
