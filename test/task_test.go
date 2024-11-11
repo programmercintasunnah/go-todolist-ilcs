@@ -33,7 +33,6 @@ func SetupRouter() *gin.Engine {
 	})
 	{
 		protected.POST("/tasks", taskController.CreateTask)
-		// Tambahkan endpoint lain jika perlu
 	}
 
 	return router

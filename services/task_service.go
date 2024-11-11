@@ -47,7 +47,6 @@ func (s *taskService) UpdateTask(id uint, updatedTask *models.Task) error {
 		return err
 	}
 
-	// Update fields
 	if strings.TrimSpace(updatedTask.Title) != "" {
 		existingTask.Title = updatedTask.Title
 	}

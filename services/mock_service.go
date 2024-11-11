@@ -1,4 +1,4 @@
-// di dalam services_mock.go atau file lain khusus untuk mock di package services
+// services/mock_service.go
 package services
 
 import (
@@ -14,7 +14,7 @@ type MockTaskService struct {
 
 func (m *MockTaskService) CreateTask(task *models.Task) error {
 	m.Tasks = append(m.Tasks, *task)
-	return nil // atau kembalikan nilai error jika diperlukan
+	return nil
 }
 
 func (m *MockTaskService) GetTaskByID(id uint) (*models.Task, error) {

@@ -82,14 +82,17 @@ func (r *taskRepository) GetAllTasks(filter map[string]interface{}, pagination P
 	var tasks []models.Task
 	var total int64
 
-	// Base Query
+	// Ambil status dari filter
+	status, _ := filter["status"].(string)
+
+	// Base Query untuk mengambil data task
 	query := "SELECT id, title, description, status, created_at, updated_at FROM tasks WHERE 1=1"
 	countQuery := "SELECT COUNT(*) FROM tasks WHERE 1=1"
 
 	var args []interface{}
 
 	// Filter Berdasarkan Status
-	if status, ok := filter["status"]; ok {
+	if status != "" {
 		query += " AND status = ?"
 		countQuery += " AND status = ?"
 		args = append(args, status)
@@ -103,7 +106,7 @@ func (r *taskRepository) GetAllTasks(filter map[string]interface{}, pagination P
 		args = append(args, searchParam, searchParam)
 	}
 
-	// Pagination
+	// Pagination - hitung offset dan limit
 	offset := (pagination.Page - 1) * pagination.Limit
 	query += " LIMIT ? OFFSET ?"
 	args = append(args, pagination.Limit, offset)
@@ -114,7 +117,7 @@ func (r *taskRepository) GetAllTasks(filter map[string]interface{}, pagination P
 		return nil, 0, err
 	}
 
-	// Eksekusi Query untuk Data
+	// Eksekusi Query untuk mengambil Data Task
 	rows, err := r.db.Query(query, args...)
 	if err != nil {
 		return nil, 0, err

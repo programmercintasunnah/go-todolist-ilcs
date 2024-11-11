@@ -25,7 +25,7 @@ func GenerateJWT(username string, duration time.Duration) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte(config.LoadConfig().JWTSecret)) // Ganti dengan secret dari config
+	tokenString, err := token.SignedString([]byte(config.LoadConfig().JWTSecret))
 	if err != nil {
 		return "", err
 	}
